@@ -35,16 +35,17 @@ namespace Function_calculator
             {
                 Lexicalanalysis(Console.ReadLine());
                 //デバッグ用
-               /* foreach (var item in tokenlist)
+                foreach (var item in tokenlist)
                 {
                     item.DebugPrint();
-                }*/
-                Console.WriteLine("result" + CreateAST.CreateSikiAST(new TokenStream(tokenlist)).GetValue());
+                }
+                Console.WriteLine("result　" + CreateAST.CreateSikiAST(new TokenStream(tokenlist)).GetValue());
                 tokenlist.Clear();
             }
         }
 
 
+        //字句解析してる
         static void Lexicalanalysis(string str)
         {
 

@@ -12,20 +12,6 @@ namespace Function_calculator
     }
     
 
-    class ValueAST : BaseAST
-    {
-
-        public override int GetValue()
-        {
-            return baseAST.GetValue();
-        }
-        BaseAST baseAST;
-        public ValueAST(BaseAST baseAST)
-        {
-            this.baseAST = baseAST;
-        }
-    }
-
     //二項演算子
     class BinaryExprAST : BaseAST
     {
