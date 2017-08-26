@@ -33,34 +33,44 @@ namespace Function_calculator
         {
             while (true)
             {
-                Lexicalanalysis(Console.ReadLine());
+                if (!Lexicalanalysis(Console.ReadLine()))
+                {
+                    Console.WriteLine("syntax error!!");
+                    tokenlist.Clear();
+                    continue;
+                }
                 //デバッグ用
-                foreach (var item in tokenlist)
+                /*foreach (var item in tokenlist)
                 {
                     item.DebugPrint();
-                }
-                Console.WriteLine("result　" + CreateAST.CreateSikiAST(new TokenStream(tokenlist)).GetValue());
+                }*/
+                var ast = CreateAST.CreateSikiAST(new TokenStream(tokenlist));
+
+                if (ast == null)
+                    Console.WriteLine("syntax error!!");
+                else
+                    Console.WriteLine("result　" + ast.GetValue());
                 tokenlist.Clear();
             }
         }
 
 
         //字句解析してる
-        static void Lexicalanalysis(string str)
+        static bool Lexicalanalysis(string str)
         {
 
             for (int index = 0; index < str.Length; index++)
             {
-                
+
                 if (IsNum(str[index]))
                 {
                     int temp = index;
-                    while (index<str.Length && IsNum(str[index]))
+                    while (index < str.Length && IsNum(str[index]))
                     {
                         index++;
                     }
                     index--;
-                    tokenlist.Add(new Token(str.Substring(temp,index-temp+1),TokenType.Int));
+                    tokenlist.Add(new Token(str.Substring(temp, index - temp + 1), TokenType.Int));
                 }
                 else if (IsOperator(str[index]))
                 {
@@ -74,7 +84,10 @@ namespace Function_calculator
                 {
                     tokenlist.Add(new Token(")", TokenType.RightKakko));
                 }
+                else return false;
             }
+
+            return true;
         }
 
         static bool IsNum(char c)

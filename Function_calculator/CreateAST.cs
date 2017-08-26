@@ -12,6 +12,7 @@ namespace Function_calculator
        public static BaseAST CreateSikiAST(TokenStream tokenst)
         {
             BaseAST baseAST = CreateKouAST(tokenst);
+            if (baseAST == null) return null;
             while (tokenst.nowIndex < tokenst.Size)
             {
                 string opstr = tokenst[tokenst.nowIndex].Str;
@@ -26,7 +27,7 @@ namespace Function_calculator
                     else
                         baseAST = new BinaryExprAST(BinaryExprAST.Op.Sub, baseAST, baseAST2);
                 }
-                else break;
+                else return null;
             }
             return baseAST;
         } 
