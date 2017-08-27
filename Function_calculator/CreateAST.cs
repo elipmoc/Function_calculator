@@ -27,7 +27,10 @@ namespace Function_calculator
                     else
                         baseAST = new BinaryExprAST(BinaryExprAST.Op.Sub, baseAST, baseAST2);
                 }
-                else return null;
+                else if(tokenst[tokenst.nowIndex].TokenType==TokenType.RightKakko)
+                    break;
+                else
+                    return null;
             }
             return baseAST;
         } 
