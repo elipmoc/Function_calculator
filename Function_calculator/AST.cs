@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Function_calculator
 {
-    abstract class BaseAST
+    public abstract class BaseAST
     {
         public abstract int GetValue();
     }

@@ -8,7 +8,7 @@ namespace Function_calculator
 {
 
     //字句解析器
-    class LexicalAnalyzer
+   public class LexicalAnalyzer
     {
         //字句解析実行
        static public TokenStream Lexicalanalysis(string str)

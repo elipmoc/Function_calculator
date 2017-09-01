@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Function_calculator
 {
-    static class CreateAST
+   public static class CreateAST
     {
 
        public static BaseAST CreateSikiAST(TokenStream tokenst)

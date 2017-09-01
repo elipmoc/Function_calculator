@@ -6,19 +6,19 @@ using System.Threading.Tasks;
 
 namespace Function_calculator
 {
-    class TokenStream
+   public class TokenStream
     {
         private readonly List<Token> tokenlist = new List<Token>();
         public int nowIndex = 0;
 
-        public Token this[int index]
+        internal Token this[int index]
         {
             get { return tokenlist[index];  }
         }
 
         public int Size { get { return tokenlist.Count; } }
 
-        public TokenStream(List<Token> tokenlist)
+        internal TokenStream(List<Token> tokenlist)
         {
             this.tokenlist = tokenlist;
         }
