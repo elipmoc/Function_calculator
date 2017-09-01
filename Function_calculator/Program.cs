@@ -27,16 +27,14 @@ namespace Function_calculator
                
         */
 
-        static List<Token> tokenlist=new List<Token>();
-
         static void Main(string[] args)
         {
             while (true)
             {
-                if (!Lexicalanalysis(Console.ReadLine()))
+                var tokenStream=LexicalAnalyzer.Lexicalanalysis(Console.ReadLine());
+                if(tokenStream==null)
                 {
                     Console.WriteLine("syntax error!!");
-                    tokenlist.Clear();
                     continue;
                 }
                 //デバッグ用
@@ -44,71 +42,15 @@ namespace Function_calculator
                 {
                     item.DebugPrint();
                 }*/
-                var ast = CreateAST.CreateSikiAST(new TokenStream(tokenlist));
+                var ast = CreateAST.CreateSikiAST(tokenStream);
 
                 if (ast == null)
                     Console.WriteLine("syntax error!!");
                 else
                     Console.WriteLine("result　" + ast.GetValue());
-                tokenlist.Clear();
             }
         }
 
-
-        //字句解析してる
-        static bool Lexicalanalysis(string str)
-        {
-
-            for (int index = 0; index < str.Length; index++)
-            {
-
-                if (IsNum(str[index]))
-                {
-                    int temp = index;
-                    while (index < str.Length && IsNum(str[index]))
-                    {
-                        index++;
-                    }
-                    index--;
-                    tokenlist.Add(new Token(str.Substring(temp, index - temp + 1), TokenType.Int));
-                }
-                else if (IsOperator(str[index]))
-                {
-                    tokenlist.Add(new Token(str[index].ToString(), TokenType.Operator));
-                }
-                else if (str[index] == '(')
-                {
-                    tokenlist.Add(new Token("(", TokenType.LeftKakko));
-                }
-                else if (str[index] == ')')
-                {
-                    tokenlist.Add(new Token(")", TokenType.RightKakko));
-                }
-                else return false;
-            }
-
-            return true;
-        }
-
-        static bool IsNum(char c)
-            =>
-                c == '0' ||
-                c == '1' ||
-                c == '2' ||
-                c == '3' ||
-                c == '4' ||
-                c == '5' ||
-                c == '6' ||
-                c == '7' ||
-                c == '8' ||
-                c == '9';
-
-        static bool IsOperator(char c)
-            =>
-                c == '+' ||
-                c == '-' ||
-                c == '*' ||
-                c == '/';
     }
 
 }
