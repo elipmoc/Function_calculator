@@ -45,6 +45,7 @@
   <ItemGroup>
     <Compile Include="AST.cs" />
     <Compile Include="CreateAST.cs" />
+    <Compile Include="FunctionTable.cs" />
     <Compile Include="LexicalAnalyzer.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -8,21 +8,32 @@ namespace Function_calculator
 {
     class Program
     {
+
+        //拡張BNF記法
+        //　[]は　0回か1回を表し
+        //  {}を0回以上の繰り返し
+        //　+を1回以上の繰り返しとする
+
+
         /*
         式
-            : 項 , ( "+" || "-" , 項 )*
+            : 項 , { "+" || "-" , 項 }
             ;
 
         項
-            : 整数 || ( "(" , 式 , ")" ) , ( "*" || "/", 項 )*
+            : 実数 || 関数 || ( "(" , 式 , ")" ) , { "*" || "/", 項 }
             ;
 
-        整数
-        　　: 数字+
+        関数
+            :識別子,"(",引数,")"
             ;
-             
-        数字
-            :"0"||"1"||"2"||"3"||"4"||"5"||"6"||"7"||"8"||"9"
+
+        識別子
+            :(a-z)+
+            ;
+
+        引数
+            :[式 , {"," , 式}]
             ;
                
         */
@@ -37,11 +48,8 @@ namespace Function_calculator
                     Console.WriteLine("syntax error!!");
                     continue;
                 }
-                //デバッグ用
-                /*foreach (var item in tokenlist)
-                {
-                    item.DebugPrint();
-                }*/
+                /*for (int i = 0; i < tokenStream.Size; i++)
+                    tokenStream[i].DebugPrint();*/
                 var ast = CreateAST.CreateSikiAST(tokenStream);
 
                 if (ast == null)

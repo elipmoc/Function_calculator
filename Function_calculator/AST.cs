@@ -8,7 +8,7 @@ namespace Function_calculator
 {
     public abstract class BaseAST
     {
-        public abstract int GetValue();
+        public abstract double GetValue();
     }
     
 
@@ -23,7 +23,7 @@ namespace Function_calculator
             Add,Sub,Mul,Div
         };
 
-        public override int GetValue()
+        public override double GetValue()
         {
             switch (op)
             {
@@ -48,17 +48,35 @@ namespace Function_calculator
         }
     }
 
-    //IntAST
-    class IntAST : BaseAST
+    //関数
+    class FunctionAST : BaseAST
     {
-        int value;
+        List<BaseAST> paramList;
+        Func<List<BaseAST>, double> func;
 
-        public override int GetValue()
+        public override double GetValue()
+        {
+            return func(paramList);
+        }
+
+        public FunctionAST(List<BaseAST>paramList,Func<List<BaseAST>,double> func)
+        {
+            this.paramList = paramList;
+            this.func = func;
+        }
+    }
+
+    //DoubleAST
+    class DoubleAST : BaseAST
+    {
+        double value;
+
+        public override double GetValue()
         {
             return value;
         }
 
-        public IntAST(int value)
+        public DoubleAST(double value)
         {
             this.value = value;
         }

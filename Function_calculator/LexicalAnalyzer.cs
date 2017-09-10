@@ -21,12 +21,21 @@ namespace Function_calculator
                 if (IsNum(str[index]))
                 {
                     int temp = index;
-                    while (index < str.Length && IsNum(str[index]))
+                    //少数点フラグ
+                    bool tenFlag = false;
+                    while (index < str.Length)
                     {
+                        if (IsNum(str[index])) ;
+                        else if (str[index] == '.') {
+                            if (tenFlag == false)
+                                tenFlag = true;
+                            else return null;
+                        }
+                        else break;
                         index++;
                     }
                     index--;
-                    tokenlist.Add(new Token(str.Substring(temp, index - temp + 1), TokenType.Int));
+                    tokenlist.Add(new Token(str.Substring(temp, index - temp + 1), TokenType.Double));
                 }
                 else if (IsOperator(str[index]))
                 {
@@ -39,6 +48,19 @@ namespace Function_calculator
                 else if (str[index] == ')')
                 {
                     tokenlist.Add(new Token(")", TokenType.RightKakko));
+                }
+                else if (str[index] == ',')
+                {
+                    tokenlist.Add(new Token(",",TokenType.Comma));
+                }
+                else if (IsAlpha(str[index])){
+                    int temp = index;
+                    while (index < str.Length&& IsAlpha(str[index]))
+                    {
+                        index++;
+                    }
+                    index--;
+                    tokenlist.Add(new Token(str.Substring(temp, index - temp + 1), TokenType.Identifier));
                 }
                 else return null;
             }
@@ -67,5 +89,7 @@ namespace Function_calculator
                 c == '-' ||
                 c == '*' ||
                 c == '/';
+        static bool IsAlpha(char c)
+            => ('a' <= c) && (c <='z');
     }
 }

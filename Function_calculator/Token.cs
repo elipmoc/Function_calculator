@@ -8,10 +8,12 @@ namespace Function_calculator
 {
     enum TokenType
     {
-        Int,
+        Double,
         LeftKakko,
         RightKakko,
-        Operator
+        Operator,
+        Identifier,
+        Comma
     }
 
     class Token
@@ -30,11 +32,11 @@ namespace Function_calculator
 
         public TokenType TokenType {get { return tokenType; } }
 
-        public int GetInt()
+        public double GetDouble()
         { 
-            if (tokenType != TokenType.Int)
+            if (tokenType != TokenType.Double)
                 throw new Exception("ばーか");
-            return int.Parse(str);
+            return double.Parse(str);
         }
 
         public void DebugPrint()
