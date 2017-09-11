@@ -12,22 +12,22 @@ namespace Function_calculator
 
         public static BaseAST CreateSikiAST(TokenStream tokenst)
         {
-            int backUp = tokenst.nowIndex;
+            tokenst.SetCheckPoint();
             BaseAST baseAST = CreateKouAST(tokenst);
             if (baseAST == null) {
-                tokenst.nowIndex = backUp;
+                tokenst.Rollback();
                 return null;
             }
-            while (tokenst.nowIndex < tokenst.Size)
+            while (tokenst.NowIndex < tokenst.Size)
             {
-                string opstr = tokenst[tokenst.nowIndex].Str;
+                string opstr = tokenst.Get().Str;
                 if (opstr == "+" || opstr == "-")
                 {
-                    tokenst.nowIndex++;
+                    tokenst.Next();
                     BaseAST baseAST2 = CreateKouAST(tokenst);
                     if (baseAST2 == null)
                     {
-                        tokenst.nowIndex = backUp;
+                        tokenst.Rollback();
                         return null;
                     }
                     if (opstr == "+")
@@ -45,35 +45,35 @@ namespace Function_calculator
         static BaseAST CreateKouAST(TokenStream tokenst)
         {
             BaseAST baseAST;
-            if (tokenst[tokenst.nowIndex].TokenType == TokenType.Double)
+            if (tokenst.Get().TokenType == TokenType.Double)
             {
-                baseAST = new DoubleAST(tokenst[tokenst.nowIndex].GetDouble());
-                tokenst.nowIndex++;
+                baseAST = new DoubleAST(tokenst.Get().GetDouble());
+                tokenst.Next();
             }
             else
             {
                 baseAST = CreateFuncCallAST(tokenst);
                 if (baseAST == null)
                 {
-                    if (tokenst[tokenst.nowIndex].TokenType == TokenType.LeftKakko)
+                    if (tokenst.Get().TokenType == TokenType.LeftKakko)
                     {
-                        tokenst.nowIndex++;
+                        tokenst.Next();
                         baseAST = CreateSikiAST(tokenst);
                         if (baseAST == null) return null;
-                        if (tokenst[tokenst.nowIndex].TokenType != TokenType.RightKakko)
+                        if (tokenst.Get().TokenType != TokenType.RightKakko)
                             return null;
-                        tokenst.nowIndex++;
+                        tokenst.Next();
                     }
                     else
                         return null;
                 }
             }
-            if (tokenst.nowIndex >= tokenst.Size) return baseAST;
-            string opstr = tokenst[tokenst.nowIndex].Str;
+            if (tokenst.NowIndex >= tokenst.Size) return baseAST;
+            string opstr = tokenst.Get().Str;
             if (opstr == "*" || opstr == "/")
             {
                 BaseAST baseAST2;
-                tokenst.nowIndex++;
+                tokenst.Next();
                 baseAST2 = CreateKouAST(tokenst);
                 if (baseAST2 == null) return null;
                 if (opstr == "*")
@@ -86,35 +86,35 @@ namespace Function_calculator
 
         static BaseAST CreateFuncCallAST(TokenStream tokenst)
         {
-            int backUp = tokenst.nowIndex;
-            if (tokenst[tokenst.nowIndex].TokenType == TokenType.Identifier)
+            tokenst.SetCheckPoint();
+            if (tokenst.Get().TokenType == TokenType.Identifier)
             {
-                var funcName = tokenst[tokenst.nowIndex].Str;
-                tokenst.nowIndex++;
-                if(tokenst[tokenst.nowIndex].TokenType != TokenType.LeftKakko)
+                var funcName = tokenst.Get().Str;
+                tokenst.Next();
+                if(tokenst.Get().TokenType != TokenType.LeftKakko)
                 {
-                    tokenst.nowIndex = backUp;
+                    tokenst.Rollback();
                     return null;
                 }
-                tokenst.nowIndex++;
+                tokenst.Next();
                 var paramlist = CreateArgsAST(tokenst);
                 if (paramlist == null)
                 {
-                    tokenst.nowIndex = backUp;
+                    tokenst.Rollback();
                     return null;
                 }
                 var function = functionTable.FindFunction(funcName, paramlist.Count);
                 if (function == null)
                 {
-                    tokenst.nowIndex = backUp;
+                    tokenst.Rollback();
                     return null;
                 }
-                if (tokenst[tokenst.nowIndex].TokenType != TokenType.RightKakko)
+                if (tokenst.Get().TokenType != TokenType.RightKakko)
                 {
-                    tokenst.nowIndex = backUp;
+                    tokenst.Rollback();
                     return null;
                 }
-                tokenst.nowIndex++;
+                tokenst.Next();
                 return new FunctionAST(paramlist, function.func);
             }
             else return null;
@@ -123,7 +123,7 @@ namespace Function_calculator
         static List<BaseAST> CreateArgsAST(TokenStream tokenst)
         {
             List<BaseAST> paramlist;
-            int backUp = tokenst.nowIndex;
+            tokenst.SetCheckPoint();
             var baseAST = CreateSikiAST(tokenst);
             if (baseAST == null)
             {
@@ -131,13 +131,13 @@ namespace Function_calculator
             }
             paramlist = new List<BaseAST>();
             paramlist.Add(baseAST);
-            while (tokenst[tokenst.nowIndex].TokenType == TokenType.Comma)
+            while (tokenst.Get().TokenType == TokenType.Comma)
             {
-                tokenst.nowIndex++;
+                tokenst.Next();
                 baseAST = CreateSikiAST(tokenst);
                 if (baseAST == null)
                 {
-                    tokenst.nowIndex = backUp;
+                    tokenst.Rollback();
                     return null;
                 }
                 paramlist.Add(baseAST);

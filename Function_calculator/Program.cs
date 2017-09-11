@@ -56,6 +56,7 @@ namespace Function_calculator
                     Console.WriteLine("syntax error!!");
                 else
                     Console.WriteLine("result　" + ast.GetValue());
+                Console.WriteLine();
             }
         }
 
