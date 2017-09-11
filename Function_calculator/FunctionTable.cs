@@ -9,8 +9,8 @@ namespace Function_calculator
     class Function
     {
         public readonly int paramNum;
-        public readonly Func<List<BaseAST>, double> func;
-        public Function(int paramNum, Func<List<BaseAST>, double> func)
+        public readonly Func<List<ExprAST>, double> func;
+        public Function(int paramNum, Func<List<ExprAST>, double> func)
         {
             this.paramNum = paramNum;
             this.func = func;
@@ -25,19 +25,26 @@ namespace Function_calculator
         {
             table.Add(
                 "abs",
-                new Function(1, (List<BaseAST> baseASTs) => Math.Abs(baseASTs[0].GetValue()))
+                new Function(1, (List<ExprAST> baseASTs) => Math.Abs(baseASTs[0].GetValue()))
                 );
             table.Add(
                 "pi",
-                new Function(0, (List<BaseAST> baseASTs) => Math.PI));
+                new Function(0, (List<ExprAST> baseASTs) => Math.PI));
             table.Add(
                 "rad",
-                new Function(1, (List<BaseAST> baseASTs) => baseASTs[0].GetValue() / 180 * Math.PI));
+                new Function(1, (List<ExprAST> baseASTs) => baseASTs[0].GetValue() / 180 * Math.PI));
             table.Add(
                 "max",
-                new Function(2, (List<BaseAST> baseASTs) =>
+                new Function(2, (List<ExprAST> baseASTs) =>
                     Math.Max( baseASTs[0].GetValue(),baseASTs[1].GetValue())
                 ));
+            table.Add(
+                "print",
+                new Function(1, (List<ExprAST> exprASTs) => {
+                    double value = exprASTs[0].GetValue();
+                    Console.WriteLine(value.ToString());
+                    return value;
+                }));
         }
 
        public Function FindFunction(string name,int paramNum)

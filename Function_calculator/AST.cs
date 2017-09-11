@@ -6,24 +6,35 @@ using System.Threading.Tasks;
 
 namespace Function_calculator
 {
-    public abstract class BaseAST
+
+    public interface BaseAST
     {
-        public abstract double GetValue();
+        void Do();
+    }
+
+    public interface ExprAST:BaseAST
+    {
+        double GetValue();
     }
     
 
     //二項演算子
-    class BinaryExprAST : BaseAST
+    class BinaryExprAST : ExprAST
     {
-        BaseAST left;
-        BaseAST right;
+        readonly ExprAST left;
+        readonly ExprAST right;
         Op op;
         public enum Op
         {
             Add,Sub,Mul,Div
         };
 
-        public override double GetValue()
+        public void Do()
+        {
+            GetValue();
+        }
+
+        public double GetValue()
         {
             switch (op)
             {
@@ -40,7 +51,7 @@ namespace Function_calculator
             
         }
 
-        public BinaryExprAST(Op op,BaseAST left,BaseAST right)
+        public BinaryExprAST(Op op,ExprAST left,ExprAST right)
         {
             this.op = op;
             this.left = left;
@@ -49,29 +60,39 @@ namespace Function_calculator
     }
 
     //関数
-    class FunctionAST : BaseAST
+    class FunctionAST : ExprAST
     {
-        List<BaseAST> paramList;
-        Func<List<BaseAST>, double> func;
+        readonly List<ExprAST> paramList;
+        readonly Func<List<ExprAST>, double> func;
 
-        public override double GetValue()
+        public void Do()
+        {
+            GetValue();
+        }
+
+        public double GetValue()
         {
             return func(paramList);
         }
 
-        public FunctionAST(List<BaseAST>paramList,Func<List<BaseAST>,double> func)
+        public FunctionAST(List<ExprAST>paramList,Func<List<ExprAST>,double> func)
         {
             this.paramList = paramList;
             this.func = func;
         }
     }
 
-    //DoubleAST
-    class DoubleAST : BaseAST
+    //実数
+    class DoubleAST : ExprAST
     {
-        double value;
+        readonly double value;
 
-        public override double GetValue()
+        public void Do()
+        {
+            GetValue();
+        }
+
+        public double GetValue()
         {
             return value;
         }
@@ -81,4 +102,24 @@ namespace Function_calculator
             this.value = value;
         }
     }
+
+    //変数宣言
+    class VariableDeclarationAST:BaseAST
+    {
+        private readonly ExprAST exprAST;
+        private readonly VariableTable vtable;
+        private readonly string name;
+        public VariableDeclarationAST(VariableTable vtable,string name,ExprAST baseAST)
+        {
+            this.name=name;
+            this.exprAST = baseAST;
+            this.vtable = vtable;
+        }
+        public void Do()
+        {
+            vtable.Register(name, exprAST.GetValue());
+        }
+    }
+
+
 }

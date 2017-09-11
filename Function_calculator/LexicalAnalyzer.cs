@@ -18,6 +18,7 @@ namespace Function_calculator
             for (int index = 0; index < str.Length; index++)
             {
 
+                //実数の解析
                 if (IsNum(str[index]))
                 {
                     int temp = index;
@@ -37,22 +38,27 @@ namespace Function_calculator
                     index--;
                     tokenlist.Add(new Token(str.Substring(temp, index - temp + 1), TokenType.Double));
                 }
+                //演算子の解析
                 else if (IsOperator(str[index]))
                 {
                     tokenlist.Add(new Token(str[index].ToString(), TokenType.Operator));
                 }
+                //（の解析
                 else if (str[index] == '(')
                 {
                     tokenlist.Add(new Token("(", TokenType.LeftKakko));
                 }
+                //）の解析
                 else if (str[index] == ')')
                 {
                     tokenlist.Add(new Token(")", TokenType.RightKakko));
                 }
+                //,の解析
                 else if (str[index] == ',')
                 {
                     tokenlist.Add(new Token(",",TokenType.Comma));
                 }
+                //識別子の解析
                 else if (IsAlpha(str[index])){
                     int temp = index;
                     while (index < str.Length&& IsAlpha(str[index]))
@@ -88,7 +94,8 @@ namespace Function_calculator
                 c == '+' ||
                 c == '-' ||
                 c == '*' ||
-                c == '/';
+                c == '/' ||
+                c == '=' ;
         static bool IsAlpha(char c)
             => ('a' <= c) && (c <='z');
     }

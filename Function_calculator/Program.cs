@@ -16,16 +16,27 @@ namespace Function_calculator
 
 
         /*
+        文
+            : 式 || 変数宣言
+            ;
+
+        変数宣言
+            : 識別子,"=",式
+            ;
         式
             : 項 , { "+" || "-" , 項 }
             ;
 
         項
-            : 実数 || 関数 || ( "(" , 式 , ")" ) , { "*" || "/", 項 }
+            : 実数 || 関数 || 変数 ||( "(" , 式 , ")" ) , { "*" || "/", 項 }
             ;
 
         関数
             :識別子,"(",引数,")"
+            ;
+       
+        変数
+            :識別子
             ;
 
         識別子
@@ -48,14 +59,16 @@ namespace Function_calculator
                     Console.WriteLine("syntax error!!");
                     continue;
                 }
-                /*for (int i = 0; i < tokenStream.Size; i++)
+
+                //デバッグ用
+               /* for (int i = 0; i < tokenStream.Size; i++)
                     tokenStream[i].DebugPrint();*/
-                var ast = CreateAST.CreateSikiAST(tokenStream);
+                var ast = CreateAST.CreateStatementAST(tokenStream);
 
                 if (ast == null)
-                    Console.WriteLine("syntax error!!");
+                    Console.WriteLine("error!!");
                 else
-                    Console.WriteLine("result　" + ast.GetValue());
+                    ast.Do();
                 Console.WriteLine();
             }
         }

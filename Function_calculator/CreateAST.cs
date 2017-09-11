@@ -10,11 +10,66 @@ namespace Function_calculator
     {
         private static FunctionTable functionTable=new FunctionTable();
 
-        public static BaseAST CreateSikiAST(TokenStream tokenst)
+        private static VariableTable variableTable = new VariableTable();
+
+        //文の解析
+        public static BaseAST CreateStatementAST(TokenStream tokenst)
+        {
+            BaseAST baseAST = CreateSikiAST(tokenst);
+            if (baseAST == null)
+            {
+                baseAST = CreateVariableDeclarationAST(tokenst);
+            }
+            if (tokenst.NowIndex != tokenst.Size)
+                return null;
+            return baseAST;
+        }
+
+        //変数宣言の解析
+        public static BaseAST CreateVariableDeclarationAST(TokenStream tokenst)
         {
             tokenst.SetCheckPoint();
-            BaseAST baseAST = CreateKouAST(tokenst);
-            if (baseAST == null) {
+            string variableName;
+            if (tokenst.Get().TokenType == TokenType.Identifier)
+            {
+                variableName = tokenst.Get().Str;
+                tokenst.Next();
+            }
+            else
+            {
+                tokenst.Rollback();
+                return null;
+            }
+            if (tokenst.Get().Str == "="){
+                tokenst.Next();
+                var exprAST = CreateSikiAST(tokenst);
+                if (exprAST == null)
+                {
+                    tokenst.Rollback();
+                    return null;
+                }
+                if (variableTable.Find(variableName) != null)
+                {
+                    tokenst.Rollback();
+                    Console.WriteLine("変数が再宣言されました");
+                    return null;
+                }
+                return new VariableDeclarationAST(variableTable,variableName, exprAST);
+
+            }
+            else
+            {
+                tokenst.Rollback();
+                return null;
+            }
+        }
+
+        //式の解析
+        public static ExprAST CreateSikiAST(TokenStream tokenst)
+        {
+            tokenst.SetCheckPoint();
+            ExprAST exprAST = CreateKouAST(tokenst);
+            if (exprAST == null) {
                 tokenst.Rollback();
                 return null;
             }
@@ -24,74 +79,88 @@ namespace Function_calculator
                 if (opstr == "+" || opstr == "-")
                 {
                     tokenst.Next();
-                    BaseAST baseAST2 = CreateKouAST(tokenst);
+                    ExprAST baseAST2 = CreateKouAST(tokenst);
                     if (baseAST2 == null)
                     {
                         tokenst.Rollback();
                         return null;
                     }
                     if (opstr == "+")
-                        baseAST = new BinaryExprAST(BinaryExprAST.Op.Add, baseAST, baseAST2);
+                        exprAST = new BinaryExprAST(BinaryExprAST.Op.Add, exprAST, baseAST2);
                     else
-                        baseAST = new BinaryExprAST(BinaryExprAST.Op.Sub, baseAST, baseAST2);
+                        exprAST = new BinaryExprAST(BinaryExprAST.Op.Sub, exprAST, baseAST2);
                 }
                 else 
                     break;
             }
-            return baseAST;
+            return exprAST;
         }
 
-
-        static BaseAST CreateKouAST(TokenStream tokenst)
+        //項の解析
+        static ExprAST CreateKouAST(TokenStream tokenst)
         {
-            BaseAST baseAST;
+            ExprAST exprAST;
+            //実数
             if (tokenst.Get().TokenType == TokenType.Double)
             {
-                baseAST = new DoubleAST(tokenst.Get().GetDouble());
+                exprAST = new DoubleAST(tokenst.Get().GetDouble());
                 tokenst.Next();
             }
+            //関数
             else
             {
-                baseAST = CreateFuncCallAST(tokenst);
-                if (baseAST == null)
+                exprAST = CreateFuncCallAST(tokenst);
+                
+                if (exprAST == null)
                 {
-                    if (tokenst.Get().TokenType == TokenType.LeftKakko)
+                    //変数
+                    if (tokenst.Get().TokenType == TokenType.Identifier && variableTable.Find(tokenst.Get().Str) != null)
+                    {
+                        exprAST = new DoubleAST(variableTable.Find(tokenst.Get().Str).Value);
+                        tokenst.Next();
+                    }
+
+                    //（式）
+                    else if (tokenst.Get().TokenType == TokenType.LeftKakko)
                     {
                         tokenst.Next();
-                        baseAST = CreateSikiAST(tokenst);
-                        if (baseAST == null) return null;
+                        exprAST = CreateSikiAST(tokenst);
+                        if (exprAST == null) return null;
                         if (tokenst.Get().TokenType != TokenType.RightKakko)
                             return null;
                         tokenst.Next();
                     }
                     else
                         return null;
+
                 }
+
             }
-            if (tokenst.NowIndex >= tokenst.Size) return baseAST;
+            if (tokenst.NowIndex >= tokenst.Size) return exprAST;
             string opstr = tokenst.Get().Str;
             if (opstr == "*" || opstr == "/")
             {
-                BaseAST baseAST2;
+                ExprAST baseAST2;
                 tokenst.Next();
                 baseAST2 = CreateKouAST(tokenst);
                 if (baseAST2 == null) return null;
                 if (opstr == "*")
-                    return new BinaryExprAST(BinaryExprAST.Op.Mul, baseAST, baseAST2);
+                    return new BinaryExprAST(BinaryExprAST.Op.Mul, exprAST, baseAST2);
                 else if (opstr == "/")
-                    return new BinaryExprAST(BinaryExprAST.Op.Div, baseAST, baseAST2);
+                    return new BinaryExprAST(BinaryExprAST.Op.Div, exprAST, baseAST2);
             }
-            return baseAST;
+            return exprAST;
         }
 
-        static BaseAST CreateFuncCallAST(TokenStream tokenst)
+        //関数の解析
+        static ExprAST CreateFuncCallAST(TokenStream tokenst)
         {
             tokenst.SetCheckPoint();
             if (tokenst.Get().TokenType == TokenType.Identifier)
             {
                 var funcName = tokenst.Get().Str;
                 tokenst.Next();
-                if(tokenst.Get().TokenType != TokenType.LeftKakko)
+                if(tokenst.NowIndex>=tokenst.Size ||tokenst.Get().TokenType != TokenType.LeftKakko)
                 {
                     tokenst.Rollback();
                     return null;
@@ -120,16 +189,17 @@ namespace Function_calculator
             else return null;
         }
 
-        static List<BaseAST> CreateArgsAST(TokenStream tokenst)
+        //関数の引数の解析
+        static List<ExprAST> CreateArgsAST(TokenStream tokenst)
         {
-            List<BaseAST> paramlist;
+            List<ExprAST> paramlist;
             tokenst.SetCheckPoint();
             var baseAST = CreateSikiAST(tokenst);
             if (baseAST == null)
             {
-                return new List<BaseAST>();
+                return new List<ExprAST>();
             }
-            paramlist = new List<BaseAST>();
+            paramlist = new List<ExprAST>();
             paramlist.Add(baseAST);
             while (tokenst.Get().TokenType == TokenType.Comma)
             {
