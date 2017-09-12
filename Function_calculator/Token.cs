@@ -11,6 +11,8 @@ namespace Function_calculator
         Double,
         LeftKakko,
         RightKakko,
+        LeftTyuKakko,//　{　のことです
+        RightTyuKakko,//　}　のことです
         Operator,
         Identifier,
         Comma

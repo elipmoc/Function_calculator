@@ -53,6 +53,16 @@ namespace Function_calculator
                 {
                     tokenlist.Add(new Token(")", TokenType.RightKakko));
                 }
+                //{の解析
+                else if (str[index] == '{')
+                {
+                    tokenlist.Add(new Token("{", TokenType.LeftTyuKakko));
+                }
+                //}の解析
+                else if (str[index] == '}')
+                {
+                    tokenlist.Add(new Token("}", TokenType.RightTyuKakko));
+                }
                 //,の解析
                 else if (str[index] == ',')
                 {

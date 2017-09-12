@@ -125,19 +125,27 @@ namespace Function_calculator
                         exprAST = new DoubleAST(variableTable.Find(tokenst.Get().Str).Value);
                         tokenst.Next();
                     }
-
-                    //（式）
-                    else if (tokenst.Get().TokenType == TokenType.LeftKakko)
-                    {
-                        tokenst.Next();
-                        exprAST = CreateSikiAST(tokenst);
-                        if (exprAST == null) return null;
-                        if (tokenst.Get().TokenType != TokenType.RightKakko)
-                            return null;
-                        tokenst.Next();
-                    }
                     else
-                        return null;
+                    {
+                        exprAST = CreateLambdaCallAST(tokenst);
+                        if (exprAST == null)
+                        {
+                            //（式）
+                            if (tokenst.Get().TokenType == TokenType.LeftKakko)
+                            {
+                                tokenst.Next();
+                                exprAST = CreateSikiAST(tokenst);
+                                if (exprAST == null) return null;
+                                if (tokenst.Get().TokenType != TokenType.RightKakko)
+                                    return null;
+                                tokenst.Next();
+                            }
+                            else
+                                return null;
+                        }
+                    }
+
+                  
 
                 }
 
@@ -220,6 +228,52 @@ namespace Function_calculator
                 paramlist.Add(baseAST);
             }
             return paramlist;
+        }
+
+        //ラムダ呼び出し
+        static ExprAST CreateLambdaCallAST(TokenStream tokenst)
+        {
+            tokenst.SetCheckPoint();
+            var lambdaAST = CreateLambdaDefinitionAST(tokenst);
+            if (lambdaAST != null)
+            {
+                if (tokenst.Get().TokenType == TokenType.LeftKakko)
+                {
+                    tokenst.Next();
+                    if (tokenst.Get().TokenType == TokenType.RightKakko)
+                    {
+                        tokenst.Next();
+                        return new LambdaCallAST(lambdaAST);
+                    }
+                }
+            }
+            tokenst.Rollback();
+            return null;
+        }
+
+        //ラムダ定義
+        static LambdaAST CreateLambdaDefinitionAST(TokenStream tokenst)
+        {
+            tokenst.SetCheckPoint();
+            if (tokenst.Get().TokenType == TokenType.LeftKakko) {
+                tokenst.Next();
+                if (tokenst.Get().TokenType == TokenType.RightKakko)
+                {
+                    tokenst.Next();
+                    if (tokenst.Get().TokenType == TokenType.LeftTyuKakko)
+                    {
+                        tokenst.Next();
+                        var exprAST = CreateSikiAST(tokenst);
+                        if(tokenst.Get().TokenType == TokenType.RightTyuKakko)
+                        {
+                            tokenst.Next();
+                            return new LambdaAST(exprAST);
+                        }
+                    }
+                }
+            }
+            tokenst.Rollback();
+            return null;
         }
 
     }

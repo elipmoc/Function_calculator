@@ -140,5 +140,43 @@ namespace Function_calculator
         }
     }
 
+    //ラムダ式定義
+    //（ラムダ式自体式なので、後でExprASTを継承するようにする）
+    class LambdaAST
+    {
+        private readonly ExprAST exprAST;
+
+        public LambdaAST(ExprAST exprAST)
+        {
+            this.exprAST = exprAST;
+        }
+        //ラムダ式呼び出し
+        public double Call()
+        {
+            return exprAST.GetValue();
+        }
+    }
+
+    //ラムダ式呼び出し
+    class LambdaCallAST:ExprAST
+    {
+        private readonly LambdaAST lambdaAST;
+
+        public LambdaCallAST(LambdaAST lambdaAST)
+        {
+            this.lambdaAST = lambdaAST;
+        }
+
+        public void Do()
+        {
+            GetValue();
+        }
+
+        public double GetValue()
+        {
+            return lambdaAST.Call();
+        }
+    }
+
 
 }
