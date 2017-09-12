@@ -103,6 +103,25 @@ namespace Function_calculator
         }
     }
 
+    class MinusAST : ExprAST
+    {
+        private readonly ExprAST exprAST;
+        public MinusAST(ExprAST exprAST)
+        {
+            this.exprAST = exprAST;
+        }
+
+        public void Do()
+        {
+            exprAST.GetValue();
+        }
+
+        public double GetValue()
+        {
+            return -exprAST.GetValue();
+        }
+    }
+
     //変数宣言
     class VariableDeclarationAST:BaseAST
     {

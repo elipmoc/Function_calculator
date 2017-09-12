@@ -100,7 +100,13 @@ namespace Function_calculator
         static ExprAST CreateKouAST(TokenStream tokenst)
         {
             ExprAST exprAST;
+            bool minusFlag = false;
             //実数
+            if (tokenst.Get().Str == "-")
+            {
+                minusFlag = true;
+                tokenst.Next();
+            }
             if (tokenst.Get().TokenType == TokenType.Double)
             {
                 exprAST = new DoubleAST(tokenst.Get().GetDouble());
@@ -136,7 +142,7 @@ namespace Function_calculator
                 }
 
             }
-            if (tokenst.NowIndex >= tokenst.Size) return exprAST;
+            if (tokenst.NowIndex >= tokenst.Size) return minusFlag ?exprAST = new MinusAST(exprAST) : exprAST;
             string opstr = tokenst.Get().Str;
             if (opstr == "*" || opstr == "/")
             {
@@ -145,11 +151,12 @@ namespace Function_calculator
                 baseAST2 = CreateKouAST(tokenst);
                 if (baseAST2 == null) return null;
                 if (opstr == "*")
-                    return new BinaryExprAST(BinaryExprAST.Op.Mul, exprAST, baseAST2);
+                    exprAST= new BinaryExprAST(BinaryExprAST.Op.Mul, exprAST, baseAST2);
                 else if (opstr == "/")
-                    return new BinaryExprAST(BinaryExprAST.Op.Div, exprAST, baseAST2);
+                    exprAST =new BinaryExprAST(BinaryExprAST.Op.Div, exprAST, baseAST2);
+                return minusFlag ? exprAST = new MinusAST(exprAST) : exprAST;
             }
-            return exprAST;
+            return minusFlag ? exprAST = new MinusAST(exprAST) : exprAST;
         }
 
         //関数の解析
